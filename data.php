@@ -1,11 +1,30 @@
 <?php
 include 'koneksi.php';
-if(isset($_POST['a'])){
-	$nama = addslashes($_POST['nama']);
+if(isset($_POST['update'])){
+  $deskripsi = addslashes($_POST['deskripsi']);
+  $jmlh = addslashes($_POST['jmlh']);
+  $hb = addslashes($_POST['hb']);
+  $nama = addslashes($_POST['nama']);
 	$image = $_FILES['image']['name'];
-    $tmp = $_FILES['image']['tmp_name'];
-    $folder = '../../assets/img/banner/slider-1/';
-      $query = mysqli_query($db, "INSERT INTO slider1 (nama,image) VALUES('$nama','$image')");
+  $tmp = $_FILES['image']['tmp_name'];
+  $folder = './img/';
+  move_uploaded_file($tmp, $folder.$image);
+      $query = mysqli_query($db, "UPDATE data_barang SET nama='$nama', deskripsi='$deskripsi', mlh='$jmlh', hb='$hb', '$image' where kd_barang='". $_GET['id'] ."')");
+
+}
+if(isset($_POST['tambah'])){
+  $kd_barang = addslashes($_POST['kd_barang']);
+  $kategori = addslashes($_POST['kategori']);
+  $deskripsi = addslashes($_POST['deskripsi']);
+  $jmlh = addslashes($_POST['jmlh']);
+  $hb = addslashes($_POST['hb']);
+  $nama = addslashes($_POST['nama']);
+	$image = $_FILES['image']['name'];
+  $tmp = $_FILES['image']['tmp_name'];
+  $folder = './img/';
+  move_uploaded_file($tmp, $folder.$image);
+      $query = mysqli_query($db, "INSERT INTO data_barang VALUES ('$kd_barang','$nama','$kategori','$deskripsi','$jmlh','$hb','$image',null)");
+
 }
 ?>
 <!DOCTYPE html>
@@ -76,24 +95,12 @@ if(isset($_POST['a'])){
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Lokasi</span></a>
       </li>
-      
 
-      <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-          <i class="fas fa-fw fa-cog"></i>
-          <span>Data User</span>
-        </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Pilih:</h6>
-            <a class="collapse-item" href="">Data Karyawan</a>
-            <a class="collapse-item" href="cards.html">Data Pengguna</a>
-          </div>
-        </div>
+        <a class="nav-link" href="kategori.php">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Kategori Produk</span></a>
       </li>
-      <hr class="sidebar-divider">
-
       <!-- Nav Item - Utilities Collapse Menu -->
 
       <!-- Divider -->
@@ -220,21 +227,37 @@ if(isset($_POST['a'])){
 									<tr>
 										<th>NO</th>
 										<th>Nama Barang</th>
-                                        <th>Kategori</th>
-                                        <th>Gambar</th>
-                                        <th>Jumlah</th>
+                    <th>Kategori</th>
+                    <th>Gambar</th>
+                    <th>Jumlah</th>
 										<th>Aksi</th>
 									</tr>
 								</thead>
 								<tbody>
+                <?php
+                $no=1;
+                $data = mysqli_query($db, "SELECT * FROM data_barang");
+                while($isi = mysqli_fetch_array($data)){
+                ?>
+                <tr>
+                <td><?= $no++?></td>
+                <td><?= $isi['nama']; ?></td>
+                <td><?= $isi['kategori']; ?></td>
+                <td><img src="img/<?= $isi['image']?>" width="90px" height="50px"> </td>
+                <td><?= $isi['jmlh']; ?></td>
+                <td>
+                <a class="edit badge badge-info text-white" data-target="#view-<?= $isi['kd_barang']; ?>" data-toggle="modal" role="button" value="id=<?= $isi['kd_barang']?>">VIEW</a> |
+                <a class="edit badge badge-primary text-white" data-target="#edit-<?= $isi['kd_barang']; ?>" data-toggle="modal" role="button" value="id=<?= $isi['kd_barang']?>">Edit</a> |
+                <a class="del badge badge-danger" role="button" href="data.php?id=<?php echo $isi['kd_barang']; ?>&act=delete">Hapus</a>
+                <?php } ?>
 								</tbody>
 								<tfoot>
 									<tr>
 										<th>NO</th>
-                                        <th>Nama Barang</th>
-                                        <th>Kategori</th>
-                                        <th>Gambar</th>
-                                        <th>Jumlah</th>
+                    <th>Nama Barang</th>
+                    <th>Kategori</th>
+                    <th>Gambar</th>
+                    <th>Jumlah</th>
 										<th>Aksi</th>
 									</tr>
 								</tfoot>
@@ -298,12 +321,12 @@ if(isset($_POST['a'])){
 				</div>
 				<div class="modal-body">
 					<div class="col-md-10">
-						<form action="slider.php" method="POST" enctype="multipart/form-data">
+						<form action="data.php" method="POST" enctype="multipart/form-data">
 							<table class="table table-borderless">
 								<tr>
 									<th>Kode</th>
 									<td>
-										<input type="text" name="nama">
+										<input type="text" name="kd_barang">
 									</td>
 								</tr>
 								<tr>
@@ -311,47 +334,178 @@ if(isset($_POST['a'])){
 									<td>
 										<input type="text" name="nama">
 									</td>
-                                </tr>
-                                <tr>
-                                    <th>Kategori</th>
-                                    <td>
-                                        <select name="kategori">
-                                            <option value="komputer">Komputer</option>
-                                            <option value="printer">Printer</option>
-                                            <option value="meja">Meja</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Deskripsi</th>
-                                    <td>
-                                        <textarea name="deskripsi" id="" cols="50" rows="3"></textarea>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Jumlah</th>
-                                    <td><input type="text" name="jmlh"></td>
-                                </tr>
-                                <tr>
-                                    <th>Harga Beli</th>
-                                    <td><input type="text" name="hb"></td>
-                                </tr>
-                                <tr>
-                                    <th>Image</th>
-                                    <td><input type="file" name="image"><td>
-                                </tr>
+                </tr>
+                <tr>
+                  <th>Kategori</th>
+                  <td>
+                    <select name="kategori">
+                      <option value="komputer">Komputer</option>
+                      <option value="kursi">kursi</option>
+                      <option value="meja">Meja</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                <th>Deskripsi</th>
+                  <td>
+                    <textarea name="deskripsi" id="" cols="50" rows="3"></textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Jumlah</th>
+                    <td><input type="text" name="jmlh"></td>
+                </tr>
+                <tr>
+                  <th>Harga Beli</th>
+                    <td><input type="text" name="hb"></td>
+                </tr>
+                <tr>
+                  <th>Image</th>
+                  <td><input type="file" name="image"><td>
+                </tr>
 								<tr>
 									<td>
-										<input type="submit" value="tambah" class="btn btn-outline-primary" name="a">
+										<input type="submit" value="tambah" class="btn btn-outline-primary" name="tambah">
 									</td>
-                				</tr>
-              				</table>
+                </tr>
+              </table>
 						</form>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
+  <?php
+	$data = mysqli_query($db, "SELECT * FROM data_barang");
+	while($isi = mysqli_fetch_array($data)){
+    ?>
+	<div class="modal fade" id="edit-<?= $isi['kd_barang']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				</div>
+				<div class="modal-body">
+					<div class="col-md-10">
+						<form action="data.php?id=<?= $isi['kd_barang']; ?>" method="POST" enctype="multipart/form-data">
+							<table class="table table-borderless">
+              <tr>
+									<th>Kode Barang</th>
+									<td>
+									<?= $isi['kd_barang']; ?>
+									</td>
+                </tr>
+								<tr>
+									<th>Nama Barang</th>
+									<td>
+										<input type="text" name="nama" value="<?= $isi['nama']; ?>">
+									</td>
+                </tr>
+                <tr>
+                  <th>Kategori</th>
+                  <td>
+                    <select name="kategori" value="<?= $isi['kategori']; ?>">
+                      <option value="komputer">Komputer</option>
+                      <option value="kursi">kursi</option>
+                      <option value="meja">Meja</option>
+                  </td>
+                </tr>
+                <tr>
+                <th>Deskripsi</th>
+                  <td>
+                    <textarea name="deskripsi" cols="50" rows="3" value="<?= $isi['deskripsi']; ?>"><?= $isi['deskripsi']; ?></textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Jumlah</th>
+                    <td><input type="text" name="jmlh"  value="<?= $isi['jmlh']; ?>"></td>
+                </tr>
+                <tr>
+                  <th>Harga Beli</th>
+                    <td><input type="text" name="hb" value="<?= $isi['hb']; ?>"></td>
+                </tr>
+                <tr>
+                  <th>Image</th>
+                  <td><input type="file" name="image"><td>
+                </tr>
+								<tr>
+									<td>
+										<input type="submit" value="update" class="btn btn-outline-primary" name="update">
+									</td>
+                </tr>
+              </table>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
+
+
+
+  <?php
+    $data = mysqli_query($db, "SELECT * FROM data_barang");
+    while($isi = mysqli_fetch_array($data)){
+  ?>
+  <div class="modal fade" id="view-<?= $isi['kd_barang']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel"><?= $isi['nama']; ?></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				</div>
+				<div class="modal-body">
+					<div class="col-md-10">
+						<form action="data.php" enctype="multipart/form-data">
+							<table class="table table-borderless">
+								<tr>
+									<th>Kode</th>
+									<td>
+										<?= $isi['kd_barang']; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>Nama Barang</th>
+									<td>
+                    <?= $isi['nama']; ?>
+									</td>
+                </tr>
+               <tr>
+                  <th>Kategori</th>
+                    <td>
+                    <?= $isi['kategori']; ?>
+                    </td>
+                </tr>
+                <tr>
+                  <th>Deskripsi</th>
+                    <td>
+                    <?= $isi['deskripsi']; ?>
+                    </td>
+                </tr>
+                <tr>
+                  <th>Jumlah</th>
+                    <td><?= $isi['jmlh']; ?> </td>
+                </tr>
+                <tr>
+                  <th>Harga Beli</th>
+                    <td><?= $isi['hb']; ?> </td>
+                </tr>
+                <tr>
+                  <th>Image</th>
+                  <td><img src="img/<?= $isi['image']?>" width="90px" height="50px"> </td>
+                </tr>
+              </table>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    <?php } ?>
+
 
   <!-- Bootstrap core JavaScript-->
   <script src="vendor/jquery/jquery.min.js"></script>
@@ -364,11 +518,10 @@ if(isset($_POST['a'])){
   <script src="js/sb-admin-2.min.js"></script>
 
   <!-- Page level plugins -->
-  <script src="vendor/chart.js/Chart.min.js"></script>
+  <!-- <script src="vendor/chart.js/Chart.min.js"></script>
 
-  <!-- Page level custom scripts -->
   <script src="js/demo/chart-area-demo.js"></script>
-  <script src="js/demo/chart-pie-demo.js"></script>
+  <script src="js/demo/chart-pie-demo.js"></script> -->
 
 </body>
 
