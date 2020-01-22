@@ -1,56 +1,17 @@
 <?php
 include 'koneksi.php';
-if(isset($_GET['act']) && $_GET['act'] == 'delete') {
-  $kd_barang = $_GET['id'];
-  $data = mysqli_query($db, "DELETE FROM data_barang WHERE kd_barang='$kd_barang'")or die(mysqli_error());
-}
 if(isset($_POST['update'])){
- 
   $kategori = addslashes($_POST['kategori']);
-  $deskripsi = addslashes($_POST['deskripsi']);
-  $jmlh = addslashes($_POST['jmlh']);
-  $hb = addslashes($_POST['hb']);
-  $nama = addslashes($_POST['nama']);
-	$image = $_FILES['image']['name'];
-  $tmp = $_FILES['image']['tmp_name'];
-  $folder = './img/';
-  if($image !=''){
-    move_uploaded_file($tmp, $folder.$image);
-        $update = mysqli_query($db, "UPDATE data_barang SET
-        nama = '".$nama."',
-        deskripsi = '".$deskripsi."',
-        jmlh = '".$jmlh."',
-        hb = '".$hb."',
-        kategori = '".$kategori."',
-        image = '".$image."'
-        WHERE kd_barang = '".$_GET['id']."'
-    ");
-}else{
-    $update = mysqli_query($db, "UPDATE data_barang SET
-    nama = '".$nama."',
-        deskripsi = '".$deskripsi."',
-        jmlh = '".$jmlh."',
-        hb = '".$hb."',
-        kategori = '".$kategori."'
-    WHERE kd_barang = '".$_GET['id']."'
-    ");
+  $update = mysqli_query($db, "UPDATE kategori SET kategori='".$kategori."' where kd_kat='".$_GET['id']."'");
 }
-}
-
-
+if(isset($_GET['act']) && $_GET['act'] == 'delete') {
+    $kd_kat = $_GET['id'];
+    $data = mysqli_query($db, "DELETE FROM kategori WHERE kd_kat='$kd_kat'")or die(mysqli_error());
+  }
 if(isset($_POST['tambah'])){
-  $kd_barang = addslashes($_POST['kd_barang']);
+  $kd_kat = addslashes($_POST['kd_kat']);
   $kategori = addslashes($_POST['kategori']);
-  $deskripsi = addslashes($_POST['deskripsi']);
-  $jmlh = addslashes($_POST['jmlh']);
-  $hb = addslashes($_POST['hb']);
-  $nama = addslashes($_POST['nama']);
-	$image = $_FILES['image']['name'];
-  $tmp = $_FILES['image']['tmp_name'];
-  $folder = './img/';
-  move_uploaded_file($tmp, $folder.$image);
-      $query = mysqli_query($db, "INSERT INTO data_barang VALUES ('$kd_barang','$nama','$kategori','$deskripsi','$jmlh','$hb','$image',null)");
-
+      $data = mysqli_query($db, "INSERT INTO kategori VALUES('$kd_kat','$kategori')");
 }
 ?>
 <!DOCTYPE html>
@@ -232,7 +193,7 @@ if(isset($_POST['tambah'])){
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            <a href="cetakasset.php" target="_blank" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Export to PDF</a>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
           </div>
 
           <!-- Content Row -->
@@ -252,38 +213,32 @@ if(isset($_POST['tambah'])){
 								<thead>
 									<tr>
 										<th>NO</th>
-										<th>Nama Barang</th>
-                    <th>Kategori</th>
-                    <th>Gambar</th>
-                    <th>Jumlah</th>
+                      <th>Kode Kategori</th>
+                      <th>Kategori</th>
 										<th>Aksi</th>
 									</tr>
 								</thead>
 								<tbody>
-                <?php
-                $no=1;
-                $data = mysqli_query($db, "SELECT * FROM data_barang");
-                while($isi = mysqli_fetch_array($data)){
-                ?>
-                <tr>
-                <td><?= $no++?></td>
-                <td><?= $isi['nama']; ?></td>
-                <td><?= $isi['kategori']; ?></td>
-                <td><img src="img/<?= $isi['image']?>" width="90px" height="50px"> </td>
-                <td><?= $isi['jmlh']; ?></td>
-                <td>
-                <a class="edit badge badge-info text-white" data-target="#view-<?= $isi['kd_barang']; ?>" data-toggle="modal" role="button" value="id=<?= $isi['kd_barang']?>">VIEW</a> |
-                <a class="edit badge badge-primary text-white" data-target="#edit-<?= $isi['kd_barang']; ?>" data-toggle="modal" role="button" value="id=<?= $isi['kd_barang']?>">Edit</a> |
-                <a class="del badge badge-danger" role="button" href="data.php?id=<?= $isi['kd_barang']; ?>&act=delete">Hapus</a>
-                <?php } ?>
+                                <?php
+                                $no=1;
+                                $data = mysqli_query($db, "SELECT * FROM kategori");
+                                while($isi = mysqli_fetch_array($data)){
+                                ?>
+                                <tr>
+                                <td><?= $no++?></td>
+                                <td><?= $isi['kd_kat']; ?></td>
+                                <td><?= $isi['kategori']; ?></td>
+                                <td>
+                                <a class="edit badge badge-info text-white" data-target="#view-<?= $isi['kd_kat']; ?>" data-toggle="modal" role="button" value="id=<?= $isi['kd_kat']?>">View</a> |
+                                <a class="edit badge badge-primary text-white" data-target="#edit-<?= $isi['kd_kat']; ?>" data-toggle="modal" role="button" value="id=<?= $isi['kd_kat']?>">Edit</a> |
+                                <a class="del badge badge-danger" role="button" href="kategori.php?id=<?php echo $isi['kd_kat']; ?>&act=delete">Hapus</a>
+                                <?php } ?>
 								</tbody>
 								<tfoot>
 									<tr>
-										<th>NO</th>
-                    <th>Nama Barang</th>
-                    <th>Kategori</th>
-                    <th>Gambar</th>
-                    <th>Jumlah</th>
+                    <th>NO</th>
+                    <th>Kode Kategori</th>
+                     <th>Kategori</th>
 										<th>Aksi</th>
 									</tr>
 								</tfoot>
@@ -347,66 +302,74 @@ if(isset($_POST['tambah'])){
 				</div>
 				<div class="modal-body">
 					<div class="col-md-10">
-						<form action="data.php" method="POST" enctype="multipart/form-data">
+						<form action="kategori.php" method="POST" enctype="multipart/form-data">
 							<table class="table table-borderless">
 								<tr>
 									<th>Kode</th>
 									<td>
-										<input type="text" name="kd_barang">
+										<input type="text" name="kd_kat">
 									</td>
 								</tr>
 								<tr>
-									<th>Nama Barang</th>
+									<th>Kategori</th>
 									<td>
-										<input type="text" name="nama">
+										<input type="text" name="kategori">
 									</td>
-                </tr>
-                <tr>
-                  <th>Kategori</th>
-                  <td>
-                    <select name="kategori">
-                      <option value="komputer">Komputer</option>
-                      <option value="kursi">kursi</option>
-                      <option value="meja">Meja</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                <th>Deskripsi</th>
-                  <td>
-                    <textarea name="deskripsi" id="" cols="50" rows="3"></textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Jumlah</th>
-                    <td><input type="text" name="jmlh"></td>
-                </tr>
-                <tr>
-                  <th>Harga Beli</th>
-                    <td><input type="text" name="hb"></td>
-                </tr>
-                <tr>
-                  <th>Image</th>
-                  <td><input type="file" name="image"><td>
-                </tr>
+                                </tr>
 								<tr>
 									<td>
 										<input type="submit" value="tambah" class="btn btn-outline-primary" name="tambah">
 									</td>
-                </tr>
-              </table>
+                				</tr>
+              				</table>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+    
+    <?php
+    $data = mysqli_query($db, "SELECT * FROM kategori");
+    while($isi = mysqli_fetch_array($data)){
+  ?>
+  <div class="modal fade" id="view-<?= $isi['kd_kat']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel"><?= $isi['kategori']; ?></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				</div>
+				<div class="modal-body">
+					<div class="col-md-10">
+						<form action="data.php" enctype="multipart/form-data">
+							<table class="table table-borderless">
+								<tr>
+									<th>Kode</th>
+									<td>
+										<?= $isi['kd_kat']; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>Kategori</th>
+									<td>
+                                    <?= $isi['kategori']; ?>
+                                    </td>
+                                </tr>
+                            </table>
 						</form>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+    <?php } ?>
 
-  <?php
-	$data = mysqli_query($db, "SELECT * FROM data_barang");
-	while($isi = mysqli_fetch_array($data)){
-    ?>
-	<div class="modal fade" id="edit-<?= $isi['kd_barang']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <?php
+    $data = mysqli_query($db, "SELECT * FROM kategori");
+    while($isi = mysqli_fetch_array($data)){
+     ?>
+    <div class="modal fade" id="edit-<?= $isi['kd_kat']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -415,51 +378,20 @@ if(isset($_POST['tambah'])){
 				</div>
 				<div class="modal-body">
 					<div class="col-md-10">
-						<form action="data.php?id=<?= $isi['kd_barang']; ?>" method="POST" enctype="multipart/form-data">
+						<form action="kategori.php?id=<?= $isi['kd_kat']; ?>" method="POST" enctype="multipart/form-data">
 							<table class="table table-borderless">
-              <tr>
-									<th>Kode Barang</th>
-									<td>
-									<?= $isi['kd_barang']; ?>
-									</td>
-                </tr>
 								<tr>
-									<th>Nama Barang</th>
+									<th>Kode</th>
 									<td>
-										<input type="text" name="nama" value="<?= $isi['nama']; ?>">
+										<?= $isi['kd_kat']; ?>
 									</td>
-                </tr>
-                <tr>
-                  <th>Kategori</th>
-                  <td>
-                    <select name="kategori" value="<?= $isi['kategori']; ?>">
-                    <?php
-                  $data = mysqli_query($db, "SELECT *from kategori");
-                  while($isi = mysqli_fetch_array($data)){
-                  ?>
-                      <option value="<?= $isi['kategori']; ?>"><?= $isi['kategori']; ?></option>
-                  <?php } ?>
-                  </td>
-                </tr>
-                <tr>
-                <th>Deskripsi</th>
-                  <td>
-                    <textarea name="deskripsi" cols="50" rows="3" value="<?= $isi['deskripsi']; ?>"><?= $isi['deskripsi']; ?></textarea>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Jumlah</th>
-                    <td><input type="text" name="jmlh"  value="<?= $isi['jmlh']; ?>"></td>
-                </tr>
-                <tr>
-                  <th>Harga Beli</th>
-                    <td><input type="text" name="hb" value="<?= $isi['hb']; ?>"></td>
-                </tr>
-                <tr>
-                  <th>Image</th>
-
-                  <td> <input type="hidden" name="gambar" value="<?php echo $file ?>"><input type="file" name="image"><td>
-                </tr>
+								</tr>
+								<tr>
+									<th>Kategori</th>
+									<td>
+										<input type="text" name="kategori" value="<?= $isi['kategori']; ?>">
+									</td>
+                 </tr>
 								<tr>
 									<td>
 										<input type="submit" value="update" class="btn btn-outline-primary" name="update">
@@ -471,71 +403,9 @@ if(isset($_POST['tambah'])){
 				</div>
 			</div>
 		</div>
-	</div>
-	<?php } ?>
-
-
-
-  <?php
-    $data = mysqli_query($db, "SELECT * FROM data_barang");
-    while($isi = mysqli_fetch_array($data)){
-  ?>
-  <div class="modal fade" id="view-<?= $isi['kd_barang']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel"><?= $isi['nama']; ?></h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				</div>
-				<div class="modal-body">
-					<div class="col-md-10">
-						<form action="data.php" enctype="multipart/form-data">
-							<table class="table table-borderless">
-								<tr>
-									<th>Kode</th>
-									<td>
-										<?= $isi['kd_barang']; ?>
-									</td>
-								</tr>
-								<tr>
-									<th>Nama Barang</th>
-									<td>
-                    <?= $isi['nama']; ?>
-									</td>
-                </tr>
-               <tr>
-                  <th>Kategori</th>
-                    <td>
-                    <?= $isi['kategori']; ?>
-                    </td>
-                </tr>
-                <tr>
-                  <th>Deskripsi</th>
-                    <td>
-                    <?= $isi['deskripsi']; ?>
-                    </td>
-                </tr>
-                <tr>
-                  <th>Jumlah</th>
-                    <td><?= $isi['jmlh']; ?> </td>
-                </tr>
-                <tr>
-                  <th>Harga Beli</th>
-                    <td><?= $isi['hb']; ?> </td>
-                </tr>
-                <tr>
-                  <th>Image</th>
-                  <td><img src="img/<?= $isi['image']?>" width="90px" height="50px"> </td>
-                </tr>
-              </table>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    </div>
     <?php } ?>
-
+    
 
   <!-- Bootstrap core JavaScript-->
   <script src="vendor/jquery/jquery.min.js"></script>
